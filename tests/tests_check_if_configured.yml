@@ -41,6 +41,19 @@
             __file: /etc/sudoers
             __fingerprint: system_role:sudo
 
+        - name: Record that the play went on after the role
+          set_fact:
+            __sudo_test_after_role: true
+
       always:
         - name: Test cleanup
           include_tasks: tasks/cleanup.yml
+
+- name: Ensure that skipping the role does not end the play
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Assert the tasks after the role ran
+      assert:
+        that: __sudo_test_after_role | d(false)
+        fail_msg: The role ended the play for the host
